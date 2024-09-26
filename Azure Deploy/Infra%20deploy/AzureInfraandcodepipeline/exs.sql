@@ -1,0 +1,1 @@
+EXEC insert_employee_records;

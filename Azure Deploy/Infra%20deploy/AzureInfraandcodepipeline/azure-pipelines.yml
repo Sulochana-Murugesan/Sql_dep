@@ -1,0 +1,32 @@
+trigger:
+  branches:
+    include:
+      - main  # Or the appropriate branch
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  resourceGroupName: 'VisualStudioOnline-B87EAB3A846A4C04A65DBEEF4F9219A5'
+  location: 'Southeast Asia'  # Replace as needed
+  System.Debug: true
+
+steps:
+  - script: |
+      echo "Listing files in $(System.DefaultWorkingDirectory)"
+      ls -R $(System.DefaultWorkingDirectory)
+    displayName: 'List files in the working directory'
+
+  - task: AzureResourceManagerTemplateDeployment@3
+    inputs:
+      deploymentScope: 'Resource Group'
+      connectedServiceName: 'Infra'  # Azure service connection name
+      action: 'Create Or Update Resource Group'
+      resourceGroupName: '$(resourceGroupName)'  # Existing resource group
+      location: '$(location)'
+      templateLocation: 'Linked artifact'
+      csmFile: '$(System.DefaultWorkingDirectory)/Azure Infra and code pipeline/infrastructure/templates/sql-database-template.json'  # Path to the ARM template
+      deploymentMode: 'Incremental'
+
+
+

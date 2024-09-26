@@ -1,0 +1,27 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  sqlServerName: 'iamusingtheserverforsql'
+  sqlDatabaseName: 'ARMTemplateDatabase'
+  sqlAdminUser: 'IamOwner'
+  sqlAdminPassword: 'Iam@good'
+  azureSubscription: 'Infra'
+
+steps:
+- task: AzureCLI@2
+  inputs:
+    azureSubscription: '$(azureSubscription)'
+    scriptType: 'bash'
+    scriptLocation: 'inlineScript'
+    inlineScript: |
+      echo "Executing SQL script..."
+      sqlcmd -S tcp:$(sqlServerName).database.windows.net,1433 -d $(sqlDatabaseName) -U $(sqlAdminUser) -P $(sqlAdminPassword) -i $(System.DefaultWorkingDirectory)/AzureInfraandcodepipeline/deployscrip.sql
+      echo "Executing second SQL script..."
+      sqlcmd -S tcp:$(sqlServerName).database.windows.net,1433 -d $(sqlDatabaseName) -U $(sqlAdminUser) -P $(sqlAdminPassword) -i $(System.DefaultWorkingDirectory)/AzureInfraandcodepipeline/exs.sql  
+  displayName: 'Execute SQL Script'
